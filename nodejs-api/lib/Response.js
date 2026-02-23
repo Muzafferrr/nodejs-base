@@ -20,6 +20,14 @@ class Response {
           description: error.description,
         },
       };
+    } else if (error.message.includes("E11000")) {
+      return {
+        code: Enum.HTTP_CODES.CONFLICT,
+        error: {
+          message: "Duplicate entry error!",
+          description: "The entry already exists.",
+        },
+      };
     }
     return {
       code: Enum.HTTP_CODES.INT_SERVER_ERROR,
