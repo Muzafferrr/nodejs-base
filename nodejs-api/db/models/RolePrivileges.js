@@ -4,7 +4,7 @@ const schema = mongoose.Schema(
   {
     role_id: { type: mongoose.SchemaTypes.ObjectId, required: true },
     permission: { type: String, required: true },
-    created_by: { type: mongoose.SchemaTypes.ObjectId, required: true },
+    created_by: { type: mongoose.SchemaTypes.ObjectId },
   },
   {
     versionKey: false,
@@ -12,7 +12,7 @@ const schema = mongoose.Schema(
       createdAt: "created_at",
       updatedAt: "updated_at",
     },
-  }
+  },
 );
 
 class RolePrivileges extends mongoose.Model {}

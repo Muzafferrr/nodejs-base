@@ -1,14 +1,17 @@
-var express = require("express");
-var router = express.Router();
-const Categories = require("../db/models/Categories");
+const express = require("express");
+const router = express.Router();
+
+const Roles = require("../db/models/Roles");
+const RolePrivileges = require("../db/models/RolePrivileges");
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
 const Enum = require("../config/Enum");
+const role_privileges = require("../config/role_privileges");
 
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   try {
-    let categories = await Categories.find({});
-    res.json(Response.successResponse(categories));
+    let roles = await Roles.find({});
+    res.json(Response.successResponse(roles));
   } catch (error) {
     let errorResponse = Response.errorResponse(error);
     res.status(errorResponse.code).json(errorResponse);
@@ -18,20 +21,20 @@ router.get("/", async (req, res, next) => {
 router.post("/add", async (req, res) => {
   let body = req.body;
   try {
-    if (!body.name)
+    if (!body.role_name)
       throw new CustomError(
         Enum.HTTP_CODES.BAD_REQUEST,
         "Validation Error!",
-        "name field must be filled",
+        "role_name field must be filled",
       );
 
-    let category = new Categories({
-      name: body.name,
-      is_active: true,
+    let role = new Roles({
+      role_name: body.role_name,
+      is_active: body.is_active,
       created_by: req.user?.id,
     });
 
-    await category.save();
+    await role.save();
     res.json(Response.successResponse({ success: true }));
   } catch (error) {
     let errorResponse = Response.errorResponse(error);
@@ -50,10 +53,10 @@ router.post("/update", async (req, res) => {
       );
 
     let updates = {};
-    if (body.name) updates.name = body.name;
+    if (body.role_name) updates.role_name = body.role_name;
     if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
-    await Categories.updateOne({ _id: body._id }, updates);
+    await Roles.updateOne({ _id: body._id }, updates);
     res.json(Response.successResponse({ success: true }));
   } catch (error) {
     let errorResponse = Response.errorResponse(error);
@@ -71,11 +74,16 @@ router.post("/delete", async (req, res) => {
         "_id field must be filled",
       );
 
-    await Categories.deleteOne({ _id: body._id });
+    await Roles.deleteOne({ _id: body._id });
     res.json(Response.successResponse({ success: true }));
   } catch (error) {
     let errorResponse = Response.errorResponse(error);
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+router.get("/role_privileges", async (req, res) => {
+  res.json(role_privileges);
+});
+
 module.exports = router;
